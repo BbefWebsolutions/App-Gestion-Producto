@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'appAlmacen',
     'appCliente',
     'appPedido',
+    'appProducto',
     'appUsuario',
 ]
 
