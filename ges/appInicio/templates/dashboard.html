@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block titulo %}Dashboard inicial{% endblock %}
+{% block css %}
+<link rel="shortcut icon" href="/ges/static/assets/images/favicon.ico">
+
+<!--Morris Chart CSS -->
+<link rel="stylesheet" href="{% static 'lib/morris/morris.css' %}">
+<!-- <link rel="stylesheet" href="/ges/static/assets/lib/morris/morris.css">
+<link rel="stylesheet" href="/ges/static/lib/morris/morris.css"> -->
+
+<!-- App css -->
+<link href="/ges/static/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link href="/ges/static/assets/css/icons.css" rel="stylesheet" type="text/css" />
+<link href="/ges/static/assets/css/style.css" rel="stylesheet" type="text/css" />
+{% endblock %}
