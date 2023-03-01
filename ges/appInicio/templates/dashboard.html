@@ -1,8 +1,39 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% block titulo %}Dashboard inicial{% endblock %}
-{% block css %}
-{% endblock %}
+{% block css %} 
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="{% static 'lib/fontawesome-free-6.3.0-web/css/all.min.css' %}">
+<!-- Ionicons -->
+<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+<!-- Tempusdominus Bootstrap 4 -->
+<link rel="stylesheet" href="{% static 'lib/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+<!-- iCheck -->
+<link rel="stylesheet" href="{% static 'lib/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+<!-- JQVMap -->
+<link rel="stylesheet" href="{% static 'lib/jqvmap/jqvmap.min.css' %}">
+<!-- Theme style -->
+<link rel="stylesheet" href="{% static 'assets/css/adminlte.css' %}">
+<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+<!-- overlayScrollbars -->
+<link rel="stylesheet" href="{% static 'lib/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+<!-- Daterange picker -->
+<link rel="stylesheet" href="{% static 'lib/daterangepicker/daterangepicker.css' %}">
+<!-- summernote -->
+<link rel="stylesheet" href="{% static 'lib/summernote/summernote-bs4.min.css' %}">
+
+
+<!-- Include the JS for AG Grid -->
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+<!-- Include the core CSS, this is needed by the grid -->
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css"/>
+<!-- Include the theme CSS, only need to import the theme you are going to use -->
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css"/>
+{% endblock %} 
 {% block container %}
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -62,9 +93,9 @@
             <!-- small box -->
             <div class="small-box bg-warning">
               <div class="inner">
-                <h3>44</h3>
+                <h3>{{clientes_total}}</h3>
 
-                <p>User Registrations</p>
+                <p>Clientes Actuales</p>
               </div>
               <div class="icon">
                 <i class="ion ion-person-add"></i>

@@ -6,6 +6,7 @@ class Cliente(models.Model):
     apellidos = models.CharField(max_length=100, null = True, blank = True, default = None, verbose_name = 'Apellidos del Cliente')
     direccion = models.CharField(max_length=255, null = True, blank = True, default = None, verbose_name = 'Direccion Cliente')
     telefono = models.CharField(max_length=20, null = True, blank = True, default = None, verbose_name = 'Telefono cliente')
+    registroActivo = models.BooleanField(default=True, verbose_name = '¿Activo?')
 
     def __str__(self):
         return self.nombres + ' ' + self.apellidos

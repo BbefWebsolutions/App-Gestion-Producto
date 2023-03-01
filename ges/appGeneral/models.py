@@ -7,6 +7,7 @@ class Movimiento(models.Model):
     fecha = models.DateTimeField(auto_now_add=True, null = True, blank = True, verbose_name = 'Fecha Movimiento')
     cantidad = models.PositiveIntegerField(null = True, blank = True, default = None, verbose_name = 'Cantidad')
     tipo = models.CharField(max_length=10, null = True, blank = True, default = None, verbose_name = 'Tipo Movimiento')
+    registroActivo = models.BooleanField(default=True, verbose_name = '¿Activo?')
 
     def __str__(self):
         return f'{self.tipo} de {self.cantidad} a {self.existencia}'
@@ -16,6 +17,7 @@ class Pedido(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True, null = True, blank = True, verbose_name = 'Fecha Creacion')
     fecha_entrega = models.DateField(null = True, blank = True, default = None, verbose_name = 'Fecha Entrega')
     estado = models.CharField(max_length=20, default='pendiente', null = True, blank = True, verbose_name = 'Estado')
+    registroActivo = models.BooleanField(default=True, verbose_name = '¿Activo?')
 
     def __str__(self):
         return f'Pedido {self.id} de {self.cliente}'
