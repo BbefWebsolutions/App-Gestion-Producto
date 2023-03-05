@@ -2,11 +2,13 @@ from django.shortcuts import render
 from appUsuario.user_decorator import validarPermisosEcosapp
 from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
 from .models import Producto
+from appAlmacen.models import Almacen
 # Create your views here.
 @validarPermisosEcosapp()
 def Crear_Ver_Producto(request):
     _context ={
-        'productos': Producto.objects.filter(registroActivo=True)
+        'productos': Producto.objects.filter(registroActivo=True),
+        'almacenes': Almacen.objects.filter(registroActivo=True),
     }
     return render(request, 'crear_ver_producto.html', context = _context)
 

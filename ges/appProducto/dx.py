@@ -8,6 +8,7 @@ def jsonProductos(request):
     productos = Producto.objects.filter()
     for producto in productos:
         json={
+            'id': producto.id,
             'nombre': producto.nombre,
             'precio': producto.precio,
             'descripcion': producto.descripcion,

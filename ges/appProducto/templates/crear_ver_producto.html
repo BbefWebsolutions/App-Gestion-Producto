@@ -26,14 +26,7 @@ Cliente
 <link rel="stylesheet" href="{% static 'lib/summernote/summernote-bs4.min.css' %}">
 
 
-<!-- Include the JS for AG Grid -->
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
-<!-- Include the core CSS, this is needed by the grid -->
-<link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css"/>
-<!-- Include the theme CSS, only need to import the theme you are going to use -->
-<link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css"/>
+<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/22.2.4/css/dx.light.css">
 {% endblock %} 
 
 {% block container %}
@@ -103,31 +96,11 @@ Cliente
             <!-- Default box -->
         <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Ver Clientes</h3>
+                <h3 class="card-title">Ver Productos</h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <!-- <div class="table-responsive"> -->
-                    <table id="myTable">
-                      <thead>
-                        <tr>
-                          <th>Nombre</th>
-                          <th>Precio</th>
-                          <th>Descripción</th>
-                        </tr>
-                      </thead>
-                      <tbody id="tbody">
-                        {% for producto in productos %}
-                            <tr>
-                                <td>{{producto.nombre}}</td>
-                                <td>{{producto.precio}}</td>
-                                <td>{{producto.descripcion}}</td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  <!-- </div> -->
-                </div>
+                <div id="gridContainer"></div>
               </div>
               <!-- /.card-body -->
             </div>
@@ -137,14 +110,52 @@ Cliente
   </section>
   <!-- /.card -->
 </div>
+
+<!-- Modales -->
+<div class="modal fade" id="modalAlmacen" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar a un almacen</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id="id_formAgregarProductoAlmacen" method="POST" data-parsley-validate enctype="multipart/form-data">{% csrf_token %}
+
+                <input type="hidden" name="id_prod" id="id_prod">
+
+                <div class="form-group row">
+                    <label for="id_almacen" class="col-sm-2 col-form-label">Almacen <span class="tx-danger">*</span> </label>
+                    <div class="col-sm-10">
+                        <select class="custom-select" id="id_almacen" name="almacen" required>
+                            <option value="-1" disabled selected>seleccionar</option>
+                            {% for almacen in almacenes %}
+                            <option value="{{ almacen.id }}">{{ almacen.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="id_cantidad" class="col-sm-2 col-form-label">Cantidad <span class="tx-danger">*</span> </label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="id_cantidad" name="cantidad" placeholder="10000" required>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn_guardar_prod" class="btn btn-primary">Guardar</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block js_script %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/parsley.js/2.9.2/parsley.min.js" integrity="sha512-eyHL1atYNycXNXZMDndxrDhNAegH2BDWt1TmkXJPoGf1WLlNYt08CSjkqF5lnCRmdm3IrkHid8s2jOUY4NIZVQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx-style@0.8.13/dist/xlsx.full.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/jquery.dataTables.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js" integrity="sha512-LUKzDoJKOLqnxGWWIBM4lzRBlxcva2ZTztO8bTcWPmDSpkErWx0bSP4pdsjNH8kiHAUPaT06UXcb+vOEZH+HpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}
 
 {% block js %}
@@ -155,6 +166,7 @@ const form = $('#id_formAgregarProducto')
         $.post("/agregar_editar_producto", form.serialize(), function (response) {
             // alert(response.accionEjecutada)
             if (response.accionEjecutada) {
+                $("#gridContainer").dxDataGrid("instance").refresh();
                 // alert(response.accionEjecutada)
                 // notify = new PNotify({
                 //     title: 'Accion exitosa',
@@ -167,33 +179,119 @@ const form = $('#id_formAgregarProducto')
         })
     }
 })
-$(document).ready( function () {
-    $('#myTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.2/i18n/es-ES.json',
-        }
-    });
-} );
 
-const btnActualizarTabla = document.getElementById('btn_guardar');
-const tabla = document.getElementById('myTable');
+$('#btn_guardar_prod').click(function () {
+const form = $('#id_formAgregarProductoAlmacen')
+    if (form.parsley().validate()) {
+        $.post("/guardar_editar_producto_almacen", form.serialize(), function (response) {
+            // alert(response.accionEjecutada)
+            if (response.accionEjecutada) {
+                let modal = $("#modalAlmacen")
+                modal.modal('hide')
+                $("#gridContainer").dxDataGrid("instance").refresh();
+                // alert(response.accionEjecutada)
+                // notify = new PNotify({
+                //     title: 'Accion exitosa',
+                //     text: 'Se ha registrado el usuario exitosamente',
+                //     type: 'success',
+                //     styling: 'bootstrap3',
+                //     delay: 3000
+                // });
+            }
+        })
+    }
+})
 
-// Agregamos un event listener al botón
-btnActualizarTabla.addEventListener('click', () => {
-  // Realizamos la solicitud AJAX
-  axios.get('/listar_productos')
-    .then(response => {
-      // Actualizamos la tabla
-      const nuevosDatos = response.data;
-      let nuevoTbody = '';
-      nuevosDatos.forEach(dato => {
-        nuevoTbody += `<tr><td>${dato.nombre}</td><td>${dato.precio}</td><td>${dato.descripcion}</td></tr>`;
-      });
-      tabla.querySelector('#tbody').innerHTML = nuevoTbody;
-    })
-    .catch(error => {
-      console.error(error);
-    });
-});
+$(function (){
+  $("#gridContainer").dxDataGrid({
+            dataSource: "{% url 'listar_productos' %}",
+            showBorders: true,
+            showColumnLines: true,
+            showRowLines: true,
+            columnAutoWidth: true,
+            rowAlternationEnabled: true,
+            hoverStateEnabled: true,
+            stateStoring: {
+                enabled: false,
+                type: "sessionStorage",
+                storageKey: "storage"
+            },
+            loadPanel: {
+                enabled: true
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true
+            },
+            paging: {
+                pageSize: 10
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 250, 500, 1000, 2000],
+                showInfo: true
+            },
+            headerFilter: {
+                visible: true,
+                allowSearch: true
+            },
+            columnChooser: {
+                enabled: true,
+                mode: "select"
+            },
+            "export": {
+                enabled: true,
+                fileName: "Usuarios Activos",
+                allowExportSelectedData: false
+            },
+            onContentReady: function(e) {
+                var $customButton = $('<div id="customButton">').dxButton({
+                icon: 'refresh', 
+                hint: "Refrescar",
+                onClick: function() {
+                    const state = JSON.parse(localStorage.getItem("dataGridState"));
+                    $("#gridContainer").dxDataGrid('instance').state(state);
+                }
+                });
+                if (e.element.find('#customButton').length == 0)
+                e.element.find('.dx-toolbar-after').prepend($customButton);
+            },
+            columns: [
+                {
+                    dataField: "nombre",
+                    caption: "Nombre",
+                    alignment: "left"
+                }, {
+                    dataField: "precio",
+                    caption: "Precio",
+                    alignment: "left"
+                }, {
+                    dataField: "descripcion",
+                    caption: "Descripción",
+                    
+                }, {
+                    type: "buttons",
+                    caption: "Acciones",
+                    alignment: "left",
+                    fixed:true,
+                    allowHiding: false,
+                    showInColumnChooser: false,
+                    buttons: [
+                        {
+                        // visible: function (e) { return !e.row.data.tieneMuestras },
+                            hint: "Cargar Muestras",
+                            icon: "plus",
+                            onClick: function (e) {
+                                let modal = $("#modalAlmacen")
+                                modal.find("#id_prod").val(e.row.data.id)
+                                modal.modal('show')
+                        }
+                        }
+                    ]
+                }]
+        });
+})
+
+
 </script>
 {% endblock %}

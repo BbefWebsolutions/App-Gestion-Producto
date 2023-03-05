@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
     <title>Dashboard</title>
       <!-- Google Font: Source Sans Pro -->
     {% block css %}
@@ -27,9 +27,10 @@
     <link rel="stylesheet" href="{% static 'lib/daterangepicker/daterangepicker.css' %}">
     <!-- summernote -->
     <link rel="stylesheet" href="{% static 'lib/summernote/summernote-bs4.min.css' %}">
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/22.2.4/css/dx.light.css">
     {% endblock %}
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed dx-viewport">
     <div class="wrapper">
     
       <!-- Preloader -->
@@ -132,7 +133,7 @@
     <!-- AdminLTE for demo purposes -->
     <!-- <script src="{% static 'assets/js/demo.js' %}"></script> -->
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-    <script src="{% static 'assets/js/pages/dashboard.js' %}"></script>
+    <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/22.2.4/js/dx.all.js"></script>
     {% block js_script %}
     {% endblock %}
 

@@ -25,15 +25,7 @@ Cliente
 <!-- summernote -->
 <link rel="stylesheet" href="{% static 'lib/summernote/summernote-bs4.min.css' %}">
 
-
-<!-- Include the JS for AG Grid -->
-<script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
-<!-- Include the core CSS, this is needed by the grid -->
-<link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css"/>
-<!-- Include the theme CSS, only need to import the theme you are going to use -->
-<link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css"/>
+<link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/22.2.4/css/dx.light.css">
 {% endblock %} 
 
 {% block container %}
@@ -98,25 +90,7 @@ Cliente
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <!-- <div class="table-responsive"> -->
-                    <table id="myTable">
-                      <thead>
-                        <tr>
-                          <th>Nombre</th>
-                          <th>Dirección</th>
-                        </tr>
-                      </thead>
-                      <tbody id="tbody">
-                        {% for almacen in Almacenes %}
-                            <tr>
-                                <td>{{almacen.nombre}}</td>
-                                <td>{{almacen.direccion}}</td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
-                  <!-- </div> -->
-                </div>
+                <div id="gridContainer"></div>
               </div>
               <!-- /.card-body -->
             </div>
@@ -144,6 +118,7 @@ const form = $('#id_formAgregarAlmacen')
         $.post("/guardar_editar_almacenes", form.serialize(), function (response) {
             // alert(response.accionEjecutada)
             if (response.accionEjecutada) {
+                $("#gridContainer").dxDataGrid("instance").refresh();
                 // alert(response.accionEjecutada)
                 // notify = new PNotify({
                 //     title: 'Accion exitosa',
@@ -156,33 +131,80 @@ const form = $('#id_formAgregarAlmacen')
         })
     }
 })
-$(document).ready( function () {
-    $('#myTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.2/i18n/es-ES.json',
-        }
-    });
-} );
 
-const btnActualizarTabla = document.getElementById('btn_guardar');
-const tabla = document.getElementById('myTable');
-
-// Agregamos un event listener al botón
-btnActualizarTabla.addEventListener('click', () => {
-  // Realizamos la solicitud AJAX
-  axios.get('/listar_almacenes')
-    .then(response => {
-      // Actualizamos la tabla
-      const nuevosDatos = response.data;
-      let nuevoTbody = '';
-      nuevosDatos.forEach(dato => {
-        nuevoTbody += `<tr><td>${dato.nombre}</td><td>${dato.direccion}</td></tr>`;
-      });
-      tabla.querySelector('#tbody').innerHTML = nuevoTbody;
-    })
-    .catch(error => {
-      console.error(error);
-    });
-});
+$(function (){
+  $("#gridContainer").dxDataGrid({
+            dataSource: "{% url 'listar_almacenes' %}",
+            showBorders: true,
+            showColumnLines: true,
+            showRowLines: true,
+            columnAutoWidth: true,
+            rowAlternationEnabled: true,
+            hoverStateEnabled: true,
+            stateStoring: {
+                enabled: false,
+                type: "sessionStorage",
+                storageKey: "storage"
+            },
+            loadPanel: {
+                enabled: true
+            },
+            searchPanel: {
+                visible: true,
+                highlightCaseSensitive: true
+            },
+            paging: {
+                pageSize: 10
+            },
+            pager: {
+                showPageSizeSelector: true,
+                allowedPageSizes: [10, 25, 50, 250, 500, 1000, 2000],
+                showInfo: true
+            },
+            headerFilter: {
+                visible: true,
+                allowSearch: true
+            },
+            columnChooser: {
+                enabled: true,
+                mode: "select"
+            },
+            "export": {
+                enabled: true,
+                fileName: "Usuarios Activos",
+                allowExportSelectedData: false
+            },
+            onContentReady: function(e) {
+                var $customButton = $('<div id="customButton">').dxButton({
+                icon: 'refresh', 
+                hint: "Refrescar",
+                onClick: function() {
+                    const state = JSON.parse(localStorage.getItem("dataGridState"));
+                    $("#gridContainer").dxDataGrid('instance').state(state);
+                }
+                });
+                if (e.element.find('#customButton').length == 0)
+                e.element.find('.dx-toolbar-after').prepend($customButton);
+            },
+            columns: [
+                {
+                    dataField: "nombre",
+                    caption: "Nombre",
+                    alignment: "left"
+                }, {
+                    dataField: "direccion",
+                    caption: "Dirección",
+                    alignment: "left"
+                },{
+                    type: "buttons",
+                    caption: "Acciones",
+                    alignment: "left",
+                    fixed:true,
+                    allowHiding: false,
+                    showInColumnChooser: false,
+                    buttons: []
+                }]
+        });
+})
 </script>
 {% endblock %}
